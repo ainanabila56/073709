@@ -362,6 +362,44 @@ body {
     }
 }
 
+/* Hamburger icon - hidden on desktop */
+.menu-icon {
+    font-size: 28px;
+    color: #ededed;
+    cursor: pointer;
+    display: none;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .menu-icon {
+        display: block;
+    }
+
+    .navbar {
+        position: absolute;
+        top: 70px;
+        right: 10%;
+        background-color: #081b29;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 200px;
+        border-radius: 10px;
+        padding: 15px 20px;
+        display: none;
+    }
+
+    .navbar a {
+        margin: 10px 0;
+        width: 100%;
+        text-align: left;
+    }
+
+    .navbar.active {
+        display: flex;
+    }
+}
+
 
 @keyframes showRight {
     100% {
