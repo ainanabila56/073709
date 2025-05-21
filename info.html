@@ -8,6 +8,12 @@
 <body>
     <header class="header">
         <a href="index.html" class="logo">Hello.</a>
+
+        <!-- Hamburger Icon -->
+        <div class="menu-icon" id="menu-icon">
+            <i class='bx bx-menu'></i>
+        </div>
+        
         <nav class="navbar">
             <a href="index.html">Home</a>
             <a href="info.html" class="active">About Me</a>
@@ -24,5 +30,15 @@
             </div>
         </div>
     </section>
+
+    <script>
+        const menuIcon = document.getElementById('menu-icon');
+        const navbar = document.getElementById('navbar');
+    
+        menuIcon.addEventListener('click', () => {
+            navbar.classList.toggle('active');
+        });
+    </script>
+
 </body>
 </html>
