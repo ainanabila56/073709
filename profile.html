@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me - Aina Nabila</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">Hello.</a>
+
+        <div class="menu-icon" id="menu-icon">
+            <i class='bx bx-menu'></i>
+        </div>
+
+        <nav class="navbar" id="navbar">
+            <a href="index.html">Home</a>
+            <a href="#" class="active">About Me</a>
+            <a href="dashboard1.html">Weather Dashboard</a>
+            <a href="dashboard2.html">Currency Dashboard</a>
+        </nav>
+    </header>
+
+    <section class="profile-container">
+        <!-- Personal Info (Top Left) -->
+        <div class="personal-info">
+            <h2>Aina Nabila Binti Abdul Rashid</h2>
+            <h3>Contact: nabilaaina56@gmail.com</h3>
+            <p>Location: Johor Bahru, Malaysia</p>
+        </div>
+
+        <!-- Profile Image (Top Right) -->
+        <div class="profile-image">
+            <img src="profilepic.jpg" alt="Profile Picture">
+        </div>
+
+        <!-- Hobbies Section (Bottom Left) -->
+        <div class="hobby-section">
+            <h2 style="color: #00abf0;">My Hobbies</h2>
+            <div class="hobby-grid hobby-left">
+                <!-- Book Icon Tile -->
+                <div class="hobby-tile">
+                  <div class="hobby-icon-label">
+                    <i class='bx bxs-book'></i>
+                    <p>Reading</p>
+                  </div>
+                  <div class="hobby-description">I love reading fiction, history, and technology-related books to expand my knowledge and imagination.</div>
+                </div>
+                
+
+                <!-- Travel Icon Tile -->
+                <div class="hobby-tile">
+                  <div class="hobby-icon-label">
+                    <i class='bx bx-world'></i>
+                    <p>Travelling</p>
+                  </div>
+                    <div class="hobby-description">Exploring new places, cultures, and cuisines keeps me inspired and connected to the world.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section (Bottom Right) -->
+        <div class="hobby-section">
+            <h2 style="color: #00abf0;">Education</h2>
+            <div class="education-stepper">
+                <div class="education-step">
+                    <div class="edu-icon"><i class='bx bxs-school'></i></div>
+                    <div class="edu-content">
+                        <span class="edu-year">2023 – Current</span>
+                        <p class="edu-detail">Bachelor Degree in Computer Science, Universiti Sultan Zainal Abidin</p>
+                    </div>
+                </div>
+                <div class="education-step">
+                    <div class="edu-icon"><i class='bx bxs-graduation'></i></div>
+                    <div class="edu-content">
+                        <span class="edu-year">2019 – 2022</span>
+                        <p class="edu-detail">Diploma in Mechanical Engineering, Universiti Malaysia Pahang</p>
+                    </div>
+                </div>
+                <div class="education-step">
+                    <div class="edu-icon"><i class='bx bxs-school'></i></div>
+                    <div class="edu-content">
+                        <span class="edu-year">2014 – 2018</span>
+                        <p class="edu-detail">High School at Sultan Ibrahim Girls School, Science Stream</p>
+                    </div>
+                </div>
+          </div>
+        </div>
+    </section>
+
+    <script>
+        const menuIcon = document.getElementById('menu-icon');
+        const navbar = document.getElementById('navbar');
+        menuIcon.addEventListener('click', () => {
+            navbar.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.hobby-tile').forEach(tile => {
+            tile.addEventListener('click', () => {
+                const desc = tile.querySelector('.hobby-description');
+                desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.hobby-tile').forEach(tile => {
+                tile.addEventListener('click', () => {
+                    const icon = tile.querySelector('i');
+                    const label = tile.querySelector('p');
+                    const desc = tile.querySelector('.hobby-description');
+
+                    const isDescriptionVisible = desc.style.opacity === '1';
+
+                    if (isDescriptionVisible) {
+                        desc.style.opacity = '0';
+                        icon.style.opacity = '1';
+                        label.style.opacity = '1';
+                    } else {
+                        desc.style.opacity = '1';
+                        icon.style.opacity = '0';
+                        label.style.opacity = '0';
+                    }
+                });
+            });
+        }
+
+    </script>
+</body>
+
+</html>

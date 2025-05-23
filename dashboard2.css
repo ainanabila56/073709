@@ -1,0 +1,147 @@
+/* dashboard2.css */
+
+body {
+    background: #081b29;
+    color: #ededed;
+  }
+  
+  .converter-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: 25px;
+  }
+  
+  .converter-section input,
+  .converter-section select,
+  .converter-section button {
+    padding: 12px 20px;
+    border-radius: 30px;
+    border: none;
+    background-color: #00abf0;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    width: 150px;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0, 171, 240, 0.3);
+  }
+  
+  .converter-section select { 
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8"><path fill="white" d="M0 0l6 6 6-6z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 12px 8px;
+    padding-right: 2.5rem;
+  }
+  
+  .converter-section input:focus,
+  .converter-section select:focus,
+  .converter-section button:focus {
+    outline: none;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(0, 171, 240, 0.4);
+  }
+  
+  .converter-section input:hover,
+  .converter-section select:hover,
+  .converter-section button:hover {
+    outline: none;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(0, 171, 240, 0.4);
+  }
+  
+  .converter-section span {
+    font-size: 18px;
+    color: #ededed;
+    margin: 0 10px;
+  }
+  
+  .conversion-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    animation: fadeIn 0.8s ease forwards;
+  }
+  
+  .currency-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  .flag-icon {
+    width: 40px;
+    height: 25px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+  }
+  
+  .conversion-result {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00abf0;
+  }
+
+  .custom-legend {
+    display: flex;
+    justify-content: flex-end; /* Aligns content to the right */
+    margin: 10px 0;
+    font-size: 14px;
+    color: black;
+  }
+  
+  
+  .chart-container-tight {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 800px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.8s ease forwards;
+  }
+  
+  #rateChart {
+    width: 100% !important;
+    height: 300px !important;
+  }
+  
+  .hidden {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .converter-section {
+      flex-direction: column;
+      gap: 12px;
+    }
+    .converter-section input,
+    .converter-section select,
+    .converter-section button {
+      width: 100%;
+      max-width: 300px;
+    }
+    .conversion-card,
+    .chart-container-tight {
+      width: 90%;
+    }
+  }
+  
