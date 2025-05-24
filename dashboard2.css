@@ -129,6 +129,37 @@ body {
   }
 
   @media (max-width: 768px) {
+    .header {
+      flex-direction: row;
+      align-items: center;
+      padding: 10px 5%;
+    }
+    .menu-icon {
+        display: block;
+        font-size: 28px;
+        color: #ededed;
+        cursor: pointer;
+    }
+    .navbar {
+        position: absolute;
+        top: 60px;
+        right: 5%;
+        background-color: #081b29;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 200px;
+        border-radius: 10px;
+        padding: 15px 20px;
+        display: none;
+    }
+    .navbar a {
+        margin: 10px 0;
+        width: 100%;
+        text-align: left;
+    }
+    .navbar.active {
+        display: flex;
+    }
     .converter-section {
       flex-direction: column;
       gap: 12px;
@@ -144,4 +175,4 @@ body {
       width: 90%;
     }
   }
-  
+    
