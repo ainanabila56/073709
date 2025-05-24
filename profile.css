@@ -185,19 +185,77 @@
     margin: 0;
 }
 
-
-
 @media (max-width: 768px) {
+    .header {
+        flex-direction: row;
+        align-items: center;
+        padding: 10px 5%;
+    }
+    .menu-icon {
+        display: block;
+        font-size: 28px;
+        color: #ededed;
+        cursor: pointer;
+    }
+    .navbar {
+        position: absolute;
+        top: 60px;
+        right: 5%;
+        background-color: #081b29;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 200px;
+        border-radius: 10px;
+        padding: 15px 20px;
+        display: none;
+    }
+    .navbar a {
+        margin: 10px 0;
+        width: 100%;
+        text-align: left;
+    }
+    .navbar.active {
+        display: flex;
+    }
+
     .profile-container {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto auto;
+        padding: 40px 5% 30px;
     }
-
     .profile-image img {
         width: 80%;
+        max-width: 200px;
     }
-
     .personal-info {
         text-align: center;
+    }
+    .hobby-grid.hobby-left {
+        grid-template-columns: 1fr;
+    }
+    .hobby-tile {
+        height: auto;
+        min-height: 120px;
+    }
+    .hobby-icon-label, .hobby-description {
+        position: static;
+        transform: none;
+        width: 100%;
+        opacity: 1;
+    }
+    .hobby-tile:hover .hobby-icon-label,
+    .hobby-tile:hover .hobby-description {
+        opacity: 1;
+    }
+    /* For mobile, always show icon and label, hide description unless clicked */
+    .hobby-description {
+        display: none;
+        margin-top: 10px;
+    }
+    .hobby-tile.clicked .hobby-description {
+        display: block;
+    }
+    .hobby-tile.clicked .hobby-icon-label {
+        display: none;
     }
 }
