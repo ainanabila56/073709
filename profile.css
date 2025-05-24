@@ -231,21 +231,24 @@
         max-width: 200px;
     }
     .hobby-grid.hobby-left {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
     .hobby-tile {
         height: auto;
         min-height: 120px;
+        position: relative;
     }
     .hobby-icon-label, .hobby-description {
+        width: 100%;
         position: static;
         transform: none;
-        width: 100%;
-        opacity: 1;
     }
-    .hobby-tile:hover .hobby-icon-label,
-    .hobby-tile:hover .hobby-description {
+    .hobby-icon-label {
+        display: flex;
         opacity: 1;
+        margin: 0;
     }
     /* For mobile, always show icon and label, hide description unless clicked */
     .hobby-description {
