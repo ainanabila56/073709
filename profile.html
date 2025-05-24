@@ -111,21 +111,7 @@
         if (window.innerWidth <= 768) {
             document.querySelectorAll('.hobby-tile').forEach(tile => {
                 tile.addEventListener('click', () => {
-                    const icon = tile.querySelector('i');
-                    const label = tile.querySelector('p');
-                    const desc = tile.querySelector('.hobby-description');
-
-                    const isDescriptionVisible = desc.style.opacity === '1';
-
-                    if (isDescriptionVisible) {
-                        desc.style.opacity = '0';
-                        icon.style.opacity = '1';
-                        label.style.opacity = '1';
-                    } else {
-                        desc.style.opacity = '1';
-                        icon.style.opacity = '0';
-                        label.style.opacity = '0';
-                    }
+                    tile.classList.toggle('clicked');
                 });
             });
         }
