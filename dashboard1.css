@@ -54,6 +54,9 @@
 .search-controls select,
 .search-controls button {
   appearance: none;
+  min-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding: 12px 20px;
   font-size: 16px;
   border: none;
