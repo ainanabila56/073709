@@ -100,23 +100,22 @@
         menuIcon.addEventListener('click', () => {
             navbar.classList.toggle('active');
         });
-
+    
         document.querySelectorAll('.hobby-tile').forEach(tile => {
-            tile.addEventListener('click', () => {
-                const desc = tile.querySelector('.hobby-description');
-                desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
+            tile.addEventListener('click', function() {
+                // Only for mobile
+                if (window.innerWidth <= 768) {
+                    // Close all other tiles
+                    document.querySelectorAll('.hobby-tile').forEach(t => {
+                        if (t !== this) t.classList.remove('clicked');
+                    });
+                    // Toggle the current tile
+                    this.classList.toggle('clicked');
+                }
             });
         });
-
-        if (window.innerWidth <= 768) {
-            document.querySelectorAll('.hobby-tile').forEach(tile => {
-                tile.addEventListener('click', () => {
-                    tile.classList.toggle('clicked');
-                });
-            });
-        }
-
     </script>
+    
 </body>
 
 </html>
