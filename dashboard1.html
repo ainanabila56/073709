@@ -62,7 +62,7 @@
       
       <div id="chartWrapper" style="display: none; width: 100%; justify-content: center; margin-top: 1rem;">
         <div class="chart-container-tight">
-          <canvas id="weatherChart" width="600" height="300"></canvas>
+          <canvas id="weatherChart"></canvas>
           <div class="custom-legend custom-legend-right">
             <span class="legend-item">
               <span class="line actual"></span> Actual Temperature
@@ -187,146 +187,144 @@
 
     let chartInstance;
 
-    async function fetchTodayForecast(city, units) {
-    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${units}`;
+async function fetchTodayForecast(city, units) {
+    // 1. Get coordinates for the city
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+    const geoData = await geoRes.json();
+    if (!geoData.results || !geoData.results.length) {
+        alert("City not found in geocoding API.");
+        document.getElementById("chartWrapper").style.display = "none";
+        return;
+    }
+    const { latitude, longitude } = geoData.results[0];
+
+    // 2. Fetch hourly forecast from Open-Meteo
+    // Add temperature_unit parameter for Fahrenheit
+    const tempUnitParam = units === "imperial" ? "&temperature_unit=fahrenheit" : "";
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,weathercode&timezone=auto${tempUnitParam}`;
     const res = await fetch(url);
     const data = await res.json();
 
-    if (!data.list || !Array.isArray(data.list)) {
-    console.error("Invalid forecast data:", data);
-    alert("Forecast data could not be loaded. Please try another city.");
-    document.getElementById("chartWrapper").style.display = "none"; //Hide chart
-    return;
+    if (!data.hourly || !data.hourly.time) {
+        alert("Forecast data could not be loaded. Please try another city.");
+        document.getElementById("chartWrapper").style.display = "none";
+        return;
     }
 
     document.getElementById("chartWrapper").style.display = "flex";
 
-    const todayDate = new Date().toISOString().split("T")[0];
-    const tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    // 3. Prepare fixed labels for x-axis: 3AM, 6AM, ..., 00AM (next day)
+    const fixedLabels = ["03:00", "06:00", "09:00", "12:00", "15:00", "18:00", "21:00", "00:00"];
+    const now = new Date();
+    const todayDate = now.toISOString().split("T")[0];
+    const tomorrowDate = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
-    const todayData = data.list.filter(item => {
-      const dateStr = item.dt_txt.split(" ")[0];
-      const hour = new Date(item.dt_txt).getHours();
-      return (dateStr === todayDate || (dateStr === tomorrowDate && hour === 0));
+    // 4. Map Open-Meteo data to fixedLabels
+    const temps = [];
+    const humidities = [];
+    const conditions = [];
+    fixedLabels.forEach(label => {
+        // Compose ISO string for today/tomorrow + this hour
+        let dateStr = todayDate;
+        let hour = label;
+        if (label === "00:00") {
+            dateStr = tomorrowDate;
+        }
+        const targetTime = `${dateStr}T${hour}`;
+        const idx = data.hourly.time.indexOf(targetTime);
+        if (idx !== -1) {
+            temps.push(data.hourly.temperature_2m[idx]);
+            humidities.push(data.hourly.relative_humidity_2m[idx]);
+            conditions.push(data.hourly.weathercode[idx]);
+        } else {
+            temps.push(null);
+            humidities.push(null);
+            conditions.push(null);
+        }
     });
 
-    const labels = todayData.map(item => {
-      const dt = new Date(item.dt_txt);
-      return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // 5. Find current time index for solid/dashed line
+    let currentIndex = fixedLabels.findIndex(label => {
+        const hour = parseInt(label.split(":")[0], 10);
+        return hour >= now.getHours() || (label === "00:00" && now.getHours() === 0);
     });
+    if (currentIndex === -1) currentIndex = fixedLabels.length - 1;
 
-    const temps = todayData.map(item => item.main.temp);
-    const humidities = todayData.map(item => item.main.humidity);
-    const conditions = todayData.map(item => item.weather[0].main);
-
-    const currentHour = new Date().getHours();
     const unitLabel = units === "metric" ? "°C" : "°F";
 
     if (chartInstance) chartInstance.destroy();
     const ctx = document.getElementById("weatherChart").getContext("2d");
 
-    const nowIndex = todayData.findIndex(item => {
-      const hour = new Date(item.dt_txt).getHours();
-      return hour === currentHour;
-    });
-    const nowLabel = nowIndex !== -1 ? labels[nowIndex] : null;
-    console.log("Filtered forecast times:", 
-    todayData.map(item => new Date(item.dt_txt + 'Z').toLocaleString()));
     chartInstance = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: `Temperature (${unitLabel})`,
-        data: temps,
-        borderColor: "#00abf0",
-        backgroundColor: "rgba(0, 171, 240, 0.15)",
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        segment: {
-          borderColor: ctx => {
-            const i = ctx.p0DataIndex;
-            const hour = new Date(todayData[i].dt_txt).getHours();
-            return hour <= currentHour ? "#00abf0" : "orange";
-          },
-          borderDash: ctx => {
-            const i = ctx.p0DataIndex;
-            const hour = new Date(todayData[i].dt_txt).getHours();
-            return hour <= currentHour ? [] : [6, 6];
-          }
-        }
-      }],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Weather Data Over Time',
-          font: {
-            size: 16
-          },
-          color: 'black'
+        type: "line",
+        data: {
+            labels: fixedLabels,
+            datasets: [{
+                label: `Temperature (${unitLabel})`,
+                data: temps,
+                borderColor: "#00abf0",
+                backgroundColor: "rgba(0, 171, 240, 0.15)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                segment: {
+                    borderColor: ctx => {
+                        const i = ctx.p0DataIndex;
+                        return i <= currentIndex ? "#00abf0" : "orange";
+                    },
+                    borderDash: ctx => {
+                        const i = ctx.p0DataIndex;
+                        return i <= currentIndex ? [] : [6, 6];
+                    }
+                }
+            }],
         },
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const i = context.dataIndex;
-              return `Temp: ${temps[i]}${unitLabel}, Humidity: ${humidities[i]}%, Condition: ${conditions[i]}`;
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Weather Data Over Time',
+                    font: { size: 16 },
+                    color: 'black'
+                },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const i = context.dataIndex;
+                            if (temps[i] == null) return "No data";
+                            return `Temp: ${temps[i]}${unitLabel}, Humidity: ${humidities[i]}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "black" },
+                    grid: { display: false },
+                    title: {
+                        display: true,
+                        text: "Time",
+                        color: "black"
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    ticks: { color: "black" },
+                    title: {
+                        display: true,
+                        text: `Temperature (${unitLabel})`,
+                        color: "black"
+                    }
+                }
             }
-          }
-        },
-        annotation: {
-          annotations: {
-            currentTime: {
-              type: "line",
-              scaleID: "x",
-              value: nowLabel,
-              borderColor: "rgba(255,0,0,0.6)",
-              borderWidth: 2,
-              borderDash: [6, 6],
-              label: {
-                content: "Now",
-                display: true,
-                position: "top",
-                backgroundColor: "rgba(255, 0, 0, 0.2)",
-                color: "red",
-                font: { weight: "bold" }
-              }
-            }
-          }
-        },
-      },
-      scales: {
-        x: {
-          ticks: { color: "black" },
-          grid: { display: false },
-          title: {
-            display: true,
-            text: "Time",
-            color: "black"
-          }
-        },
-        y: {
-          beginAtZero: false,
-          ticks: { color: "black" },
-          title: {
-            display: true,
-            text: `Temperature (${unitLabel})`,
-            color: "black"
-          }
         }
-      }
-    }
-  });
-
-  Chart.register(window['chartjs-plugin-annotation']);
+    });
 }
+
+
   
     function getTextColor(bgColor) {
       const tempDiv = document.createElement("div");
