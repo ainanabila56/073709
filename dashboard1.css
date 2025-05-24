@@ -11,25 +11,21 @@
   color: #ededed;
   text-decoration: none;
   font-weight: 600;
-  order: 1;
 }
 .menu-icon {
   display: none;
   font-size: 28px;
   color: #ededed;
   cursor: pointer;
-  order: 2;
 }
 .navbar {
   display: flex;
-  flex-direction: row;
   gap: 20px;
 }
 .navbar a {
   color: #ededed;
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s;
 }
 .navbar a:hover,
 .navbar a.active {
@@ -233,19 +229,12 @@ canvas {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-  .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 5%;
-      flex-direction: row;
-  }
-  .menu-icon {
-      display: block;
-      order: 2;
-  }
   .logo {
       order: 1;
+  }
+  .menu-icon {
+    display: block;
+    order: 2;
   }
   .navbar {
       position: absolute;
