@@ -5,32 +5,26 @@
     gap: 30px;
     padding: 80px 10% 60px;
 }
-
 .personal-info {
     font-size: 22px;
 }
-
 .personal-info h2 {
     font-size: 30px;
     margin-bottom: 15px;
 }
-
 .personal-info h3 {
     color: #00abf0;
     font-size: 25px;
 }
-
 .personal-info p {
     font-size: 20px;
 }
-
 .profile-image {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: -30px;
 }
-
 .profile-image img {
     width: 150px;
     height: 150px;
@@ -38,7 +32,6 @@
     border-radius: 50%;
     box-shadow: 0 0 20px rgba(0, 171, 240, 0.3);
 }
-
 .hobby-section {
     grid-column: span 1;
     border: 2px solid #00abf0;
@@ -58,7 +51,6 @@
     flex-direction: column;
     justify-content: center;
 }
-
 .hobby-tile {
     background-color: #0d2a3e;
     border-radius: 12px;
@@ -70,7 +62,6 @@
     height: 120px;
     overflow: hidden;
 }
-
 .hobby-icon-label {
     position: absolute;
     top: 50%;
@@ -83,19 +74,16 @@
     justify-content: center;
     transition: opacity 0.3s ease;
 }
-
 .hobby-icon-label i {
     font-size: 36px;
     margin-bottom: 8px;
     color: #ededed;
 }
-
 .hobby-icon-label p {
     font-size: 14px;
     margin: 0;
     color: #ededed;
 }
-
 .hobby-description {
     position: absolute;
     top: 50%;
@@ -106,20 +94,24 @@
     font-size: 15px;
     color: #ededed;
     line-height: 1.3em;
+    max-height: 0;
+    overflow: hidden;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
 }
-
+.hobby-tile.clicked .hobby-description {
+    display: block;
+    max-height: 200px; 
+    opacity: 1;
+}
 .hobby-tile:hover .hobby-icon-label {
     opacity: 0;
 }
-
 .hobby-tile:hover .hobby-description {
     opacity: 1;
     pointer-events: auto;
 }
-
 .education-section {
     grid-column: span 1;
     border: 2px solid #00abf0;
@@ -165,11 +157,9 @@
     left: -15px;
     top: 0;
 }
-
 .edu-content {
     margin-left: 30px;
 }
-
 .edu-year {
     font-weight: bold;
     font-size: 14px;
@@ -177,7 +167,6 @@
     margin-bottom: 5px;
     color: #ededed;
 }
-
 .edu-detail {
     font-size: 14px;
     line-height: 1.4;
@@ -219,16 +208,27 @@
     }
 
     .profile-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto auto;
+        display: flex;
+        flex-direction: column;
         padding: 40px 5% 30px;
+    }
+    .profile-image {
+        order: 1;
+        margin: 0 auto 20px;
+    }
+    .personal-info {
+        order: 2;
+        text-align: center;
+    }
+    .hobby-section {
+        order: 3;
+    }
+    .education-section {
+        order: 4;
     }
     .profile-image img {
         width: 80%;
         max-width: 200px;
-    }
-    .personal-info {
-        text-align: center;
     }
     .hobby-grid.hobby-left {
         grid-template-columns: 1fr;
