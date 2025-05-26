@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Weather Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard1.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo">Hello.</a>
+    <div class="menu-icon" id="menu-icon">
+        <i class='bx bx-menu'></i>
+    </div>
+    <nav class="navbar" id="navbar">
+        <a href="index.html">Home</a>
+        <a href="profile.html">About Me</a>
+        <a href="dashboard1.html" class="active">Weather Dashboard</a>
+        <a href="dashboard2.html">Currency Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="dashboard-title">Weather Forecast by City</h1>
+  
+    <div class="search-section">
+      <div class="search-controls">
+        <select id="countrySelect">
+          <option value="" selected disabled>-- Select Country --</option>
+          <option value="United States">United States</option>
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="Canada">Canada</option>
+          <option value="Australia">Australia</option>
+          <option value="Germany">Germany</option>
+          <option value="France">France</option>
+          <option value="Japan">Japan</option>
+          <option value="India">India</option>
+          <option value="Malaysia">Malaysia</option>
+          <option value="Singapore">Singapore</option>
+        </select>
+        
+        <select id="citySelect" disabled>
+          <option value="" selected disabled>-- Select Country First --</option>
+        </select>
+        
+        <select id="unitDropdown">
+          <option value="metric">Celsius</option>
+          <option value="imperial">Fahrenheit</option>
+        </select>
+        <button id="fetchBtn" class="main-button">Get Weather</button>
+      </div>
+    </div>  
+    
+
+    <div id="weatherResult" class="hidden">
+      <h2 id="weatherTitle"></h2>
+      <div id="weatherCards" class="weather-cards"></div>
+      
+      <div id="chartWrapper" style="display: none; width: 100%; justify-content: center; margin-top: 1rem;">
+        <div class="chart-container-tight">
+          <canvas id="weatherChart"></canvas>
+          <div class="custom-legend custom-legend-right">
+            <span class="legend-item">
+              <span class="line actual"></span> Actual Temperature
+            </span>
+            <span class="legend-item">
+              <span class="line forecasted"></span> Forecasted Temperature
+            </span>
+          </div>
+        </div>
+      </div>            
+    </div>
+  </div>
+
+  <script>
+    const menuIcon = document.getElementById('menu-icon');
+    const navbar = document.getElementById('navbar');
+    menuIcon.addEventListener('click', () => {
+    navbar.classList.toggle('active');
+    });
+
+    const apiKey = "a384cc88768632ba6cd9d0d3b7dedff6";
+    const cityDropdown = document.getElementById("citySelect");
+    const unitDropdown = document.getElementById("unitDropdown");
+    const fetchBtn = document.getElementById("fetchBtn");
+    const weatherCards = document.getElementById("weatherCards");
+  
+    fetchBtn.addEventListener("click", () => {
+      const city = cityDropdown.value;
+      const units = unitDropdown.value;
+
+      if (!city || cityDropdown.selectedIndex === 0) {
+        alert("Please select a city.");
+        return;
+      }
+
+      fetchTodayWeather(city, units);
+      fetchTodayForecast(city, units);
+    });
+
+    document.getElementById("countrySelect").addEventListener("change", async function () {
+      const country = this.value;
+      const citySelect = document.getElementById("citySelect");
+
+      if (!country) {
+        citySelect.innerHTML = '<option value="" selected disabled>-- Select Country First --</option>';
+        citySelect.disabled = true;
+        return;
+      }
+
+      const res = await fetch("https://countriesnow.space/api/v0.1/countries/cities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country })
+      });
+      const data = await res.json();
+
+      citySelect.innerHTML = ""; // clear previous
+
+      // Add placeholder
+      const placeholderOption = document.createElement("option");
+      placeholderOption.text = "-- Select a city --";
+      placeholderOption.disabled = true;
+      placeholderOption.selected = true;
+      placeholderOption.value = "";
+      citySelect.appendChild(placeholderOption);
+
+      // Add cities from API
+      data.data.forEach(city => {
+        const option = document.createElement("option");
+        option.text = city;
+        option.value = city;
+        citySelect.appendChild(option);
+      });
+
+      citySelect.disabled = false;
+    });
+  
+    async function fetchTodayWeather(city, units) {
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${units}`;
+      const res = await fetch(url);
+      const data = await res.json();
+  
+      const temp = data.main.temp;
+      const condition = data.weather[0].main.toLowerCase();
+      const icon = data.weather[0].icon;
+      const humidity = data.main.humidity;
+      const iconUrl = `http://openweathermap.org/img/wn/${icon}@4x.png`;
+      const tempUnit = units === "metric" ? "°C" : "°F";
+
+      const cardBackground = "rgba(240, 240, 240, 0.85)";
+      const textColor = getTextColor(cardBackground);
+
+      // Determine weather glow color
+      let borderColor = "transparent";
+      if (condition.includes("clear") || condition.includes("sun")) {
+        borderColor = "rgba(255, 223, 0, 0.6)"; // yellow glow
+      } else if (condition.includes("rain")) {
+        borderColor = "rgba(100, 149, 237, 0.6)"; // blue-gray
+      } else if (condition.includes("cloud")) {
+        borderColor = "rgba(169, 169, 169, 0.6)"; // soft gray
+      }
+
+      const cardHTML = `
+        <div class="weather-card" style="background-color: ${cardBackground}; box-shadow: 0 0 15px ${borderColor}; color: ${textColor};">
+          <div class="card-text">
+            <h2>${data.name}, ${data.sys.country}</h2>
+            <p><strong>Temperature:</strong> ${temp}${tempUnit}</p>
+            <p><strong>Condition:</strong> ${data.weather[0].main}</p>
+            <p><strong>Humidity:</strong> ${humidity}%</p>
+          </div>
+          <div class="card-icon">
+            <img src="${iconUrl}" alt="Weather Icon" />
+          </div>
+        </div>
+      `;
+  
+      weatherCards.innerHTML = cardHTML;
+      weatherCards.classList.add("fade-in");
+      document.getElementById("weatherResult").classList.remove("hidden");
+      fetchTodayForecast(city, units);
+    }
+
+    let chartInstance;
+
+async function fetchTodayForecast(city, units) {
+    // 1. Get coordinates for the city
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+    const geoData = await geoRes.json();
+    if (!geoData.results || !geoData.results.length) {
+        alert("City not found in geocoding API.");
+        document.getElementById("chartWrapper").style.display = "none";
+        return;
+    }
+    const { latitude, longitude } = geoData.results[0];
+
+    // 2. Fetch hourly forecast from Open-Meteo
+    // Add temperature_unit parameter for Fahrenheit
+    const tempUnitParam = units === "imperial" ? "&temperature_unit=fahrenheit" : "";
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,weathercode&timezone=auto${tempUnitParam}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.hourly || !data.hourly.time) {
+        alert("Forecast data could not be loaded. Please try another city.");
+        document.getElementById("chartWrapper").style.display = "none";
+        return;
+    }
+
+    document.getElementById("chartWrapper").style.display = "flex";
+
+    // 3. Prepare fixed labels for x-axis: 3AM, 6AM, ..., 00AM (next day)
+    const fixedLabels = ["03:00", "06:00", "09:00", "12:00", "15:00", "18:00", "21:00", "00:00"];
+    const now = new Date();
+    const todayDate = now.toISOString().split("T")[0];
+    const tomorrowDate = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    // 4. Map Open-Meteo data to fixedLabels
+    const temps = [];
+    const humidities = [];
+    const conditions = [];
+    fixedLabels.forEach(label => {
+        // Compose ISO string for today/tomorrow + this hour
+        let dateStr = todayDate;
+        let hour = label;
+        if (label === "00:00") {
+            dateStr = tomorrowDate;
+        }
+        const targetTime = `${dateStr}T${hour}`;
+        const idx = data.hourly.time.indexOf(targetTime);
+        if (idx !== -1) {
+            temps.push(data.hourly.temperature_2m[idx]);
+            humidities.push(data.hourly.relative_humidity_2m[idx]);
+            conditions.push(data.hourly.weathercode[idx]);
+        } else {
+            temps.push(null);
+            humidities.push(null);
+            conditions.push(null);
+        }
+    });
+
+    // 5. Find current time index for solid/dashed line
+    let currentIndex = fixedLabels.findIndex(label => {
+        const hour = parseInt(label.split(":")[0], 10);
+        return hour >= now.getHours() || (label === "00:00" && now.getHours() === 0);
+    });
+    if (currentIndex === -1) currentIndex = fixedLabels.length - 1;
+
+    const unitLabel = units === "metric" ? "°C" : "°F";
+
+    if (chartInstance) chartInstance.destroy();
+    const ctx = document.getElementById("weatherChart").getContext("2d");
+
+    chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: fixedLabels,
+            datasets: [{
+                label: `Temperature (${unitLabel})`,
+                data: temps,
+                borderColor: "#00abf0",
+                backgroundColor: "rgba(0, 171, 240, 0.15)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                segment: {
+                    borderColor: ctx => {
+                        const i = ctx.p0DataIndex;
+                        return i <= currentIndex ? "#00abf0" : "orange";
+                    },
+                    borderDash: ctx => {
+                        const i = ctx.p0DataIndex;
+                        return i <= currentIndex ? [] : [6, 6];
+                    }
+                }
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Weather Data Over Time',
+                    font: { size: 16 },
+                    color: 'black'
+                },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const i = context.dataIndex;
+                            if (temps[i] == null) return "No data";
+                            return `Temp: ${temps[i]}${unitLabel}, Humidity: ${humidities[i]}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "black" },
+                    grid: { display: false },
+                    title: {
+                        display: true,
+                        text: "Time",
+                        color: "black"
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    ticks: { color: "black" },
+                    title: {
+                        display: true,
+                        text: `Temperature (${unitLabel})`,
+                        color: "black"
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+  
+    function getTextColor(bgColor) {
+      const tempDiv = document.createElement("div");
+      tempDiv.style.backgroundColor = bgColor;
+      document.body.appendChild(tempDiv);
+      const computedColor = getComputedStyle(tempDiv).backgroundColor;
+      document.body.removeChild(tempDiv);
+  
+      const rgb = computedColor.match(/\d+/g).map(Number);
+      const brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+      return brightness > 125 ? "#000000" : "#ffffff";
+    }
+  </script>
+  
+</body>
+</html>

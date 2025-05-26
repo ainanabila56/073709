@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currency Converter Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard2.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo">Hello.</a>
+    <div class="menu-icon" id="menu-icon">
+      <i class='bx bx-menu'></i>
+    </div>
+    <nav class="navbar" id="navbar">
+      <a href="index.html">Home</a>
+      <a href="profile.html">About Me</a>
+      <a href="dashboard1.html">Weather Dashboard</a>
+      <a href="dashboard2.html" class="active">Currency Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="dashboard-title">Currency Converter</h1>
+    <div class="converter-section">
+      <input type="number" id="amount" placeholder="Enter amount" value="1">
+      <select id="baseCurrency">
+        <option value="EUR">EUR</option>
+        <option value="USD">USD</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+        <option value="MYR">MYR</option>
+        <option value="SGD">SGD</option>
+        <option value="THB">THB</option>
+      </select>
+      <span>to</span>
+      <select id="targetCurrency">
+        <option value="EUR">EUR</option>
+        <option value="USD" selected>USD</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+        <option value="MYR">MYR</option>
+        <option value="SGD">SGD</option>
+        <option value="THB">THB</option>
+      </select>
+      <button id="convertBtn">Convert</button>
+    </div>
+
+    <div class="result-chart-wrapper">
+      <div id="resultCardWrapper" style="display: none;">
+        <div class="conversion-card">
+          <div class="currency-pair">
+            <img id="flagFrom" src="" alt="From Flag" class="flag-icon" />
+            <span id="fromCurrency"></span>
+            <span>→</span>
+            <img id="flagTo" src="" alt="To Flag" class="flag-icon" />
+            <span id="toCurrency"></span>
+          </div>
+          <p id="conversionResult" class="conversion-result"></p>
+        </div>
+      </div>
+      <div id="chartWrapper" style="display: none; width: 100%; justify-content: center; margin-top: 1rem;">
+        <div class="chart-container-tight">
+          <canvas id="rateChart" width="600" height="300"></canvas>
+          <div class="custom-legend custom-legend-right">
+            <span class="legend-item">
+              <span class="line actual"></span> Conversion
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+    const menuIcon = document.getElementById('menu-icon');
+    const navbar = document.getElementById('navbar');
+    menuIcon.addEventListener('click', () => {
+    navbar.classList.toggle('active');
+    });
+
+    const amountInput = document.getElementById("amount");
+    const baseCurrency = document.getElementById("baseCurrency");
+    const targetCurrency = document.getElementById("targetCurrency");
+    const convertBtn = document.getElementById("convertBtn");
+    const resultText = document.getElementById("conversionResult");
+    const chartWrapper = document.getElementById("chartWrapper");
+    const chartCanvas = document.getElementById("rateChart");
+    const flagFromImg = document.getElementById("flagFrom");
+    const flagToImg = document.getElementById("flagTo");
+    const fromCurrencyText = document.getElementById("fromCurrency");
+    const toCurrencyText = document.getElementById("toCurrency");
+    let chartInstance;
+
+    function currencyToCountryCode(currency) {
+      const map = {
+        USD: 'us',
+        EUR: 'eu', // Note: "eu" is not a country, but flagcdn.com provides an EU flag
+        GBP: 'gb',
+        JPY: 'jp',
+        MYR: 'my',
+        SGD: 'sg',
+        THB: 'th'
+      };
+      return map[currency] || 'un';
+    }
+
+    const resultCardWrapper = document.getElementById("resultCardWrapper");
+
+    convertBtn.addEventListener("click", async () => {
+      const amount = amountInput.value;
+      const from = baseCurrency.value;
+      const to = targetCurrency.value;
+      
+      // 1. Check for same currency
+      if (from === to) {
+        alert("Please select different currencies.");
+        resultCardWrapper.style.display = "none";
+        chartWrapper.style.display = "none";
+        return;
+      }
+
+      // 2. Check for invalid amount
+      if (!amount || isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid amount.");
+        resultCardWrapper.style.display = "none";
+        chartWrapper.style.display = "none";
+        return;
+      }
+
+      // Update flag images and currency text
+      flagFromImg.src = `https://flagcdn.com/w40/${currencyToCountryCode(from)}.png`;
+      flagToImg.src = `https://flagcdn.com/w40/${currencyToCountryCode(to)}.png`;
+      fromCurrencyText.textContent = from;
+      toCurrencyText.textContent = to;
+
+      // Real-time conversion
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`);
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          resultText.textContent = `${amount} ${from} = ${data.rates[to].toFixed(2)} ${to}`;
+          resultCardWrapper.style.display = "block"; // Show card after result
+          chartWrapper.style.display = "flex";
+        } else {
+          resultText.textContent = "Conversion failed. Please try again.";
+          resultCardWrapper.style.display = "none";
+          chartWrapper.style.display = "none";
+        }
+      };
+      xhr.onerror = () => {
+        resultText.textContent = "Network error. Please try again.";
+        resultCardWrapper.style.display = "none";
+        chartWrapper.style.display = "none";
+      };
+      xhr.send();
+
+      // Load last 7 days for chart
+      const endDate = new Date().toISOString().split("T")[0];
+      const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      const chartXhr = new XMLHttpRequest();
+      chartXhr.open("GET", `https://api.frankfurter.app/${startDate}..${endDate}?from=${from}&to=${to}`);
+      chartXhr.onload = () => {
+        if (chartXhr.status === 200) {
+          const historyData = JSON.parse(chartXhr.responseText);
+          const labels = Object.keys(historyData.rates);
+          const values = labels.map(date => historyData.rates[date][to]);
+
+          if (chartInstance) chartInstance.destroy();
+
+          chartInstance = new Chart(chartCanvas, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: `${from} to ${to}`,
+                data: values,
+                borderColor: '#00abf0',
+                backgroundColor: 'rgba(0, 171, 240, 0.1)',
+                tension: 0.3
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: 'Currency Rate Over Time', 
+                  font: {
+                    size: 16
+                  },
+                  color: 'black' 
+                },
+                legend: { display: false },
+                tooltip: {
+                  enabled: true,
+                  callbacks: {
+                    label: function(context) {
+                      return `${from} to ${to}: ${context.parsed.y}`;
+                    }
+                  }
+                }
+              },
+                scales: {
+                  x: { ticks: { color: 'black' } },
+                  y: { ticks: { color: 'black' } }
+                }
+            }
+          });
+        }
+        };
+  chartXhr.onerror = () => {
+    console.error("Chart data fetch failed.");
+  };
+  chartXhr.send();
+});
+  </script>
+</body>
+</html>
