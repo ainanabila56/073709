@@ -204,6 +204,7 @@
     .profile-image {
         order: 1;
         margin: 0 auto 20px;
+        height: fit-content;
     }
     .personal-info {
         order: 2;
@@ -218,6 +219,9 @@
     .profile-image img {
         width: 80%;
         max-width: 200px;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        border-radius: 50%;
     }
     .hobby-grid.hobby-left {
         display: flex;
