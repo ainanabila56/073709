@@ -28,6 +28,7 @@
 .profile-image img {
     width: 150px;
     height: 150px;
+    aspect-ratio: 1/1;
     object-fit: cover;
     border-radius: 50%;
     box-shadow: 0 0 20px rgba(0, 171, 240, 0.3);
@@ -219,9 +220,7 @@
     .profile-image img {
         width: 80%;
         max-width: 200px;
-        aspect-ratio: 1/1;
-        object-fit: cover;
-        border-radius: 50%;
+        height: auto;
     }
     .hobby-grid.hobby-left {
         display: flex;
