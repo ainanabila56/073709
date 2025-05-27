@@ -128,6 +128,9 @@ body {
     color: #00abf0;
   }
   .custom-legend-right {
+    flex: 0 0 160px; /* Fixed width for legend */
+    max-width: 200px;
+    min-width: 120px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -136,7 +139,6 @@ body {
     max-height: 300px;
     overflow-y: auto;
     padding-right: 10px;
-    max-width: 200px;
     align-self: flex-start;
     color: black;
   }
@@ -170,9 +172,10 @@ body {
     animation: fadeIn 0.8s ease forwards;
   }
   #rateChart {
-    flex: 1;
-    max-height: 350px;
-    width: auto !important;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: calc(100% - 180px); 
+    height: 350px;
   }
   .hidden {
     display: none;
@@ -238,6 +241,13 @@ body {
       margin-left: 0;
       margin-top: 20px;
       max-width: 100%;
+      width: 100%;
+      flex: none;
+    }
+    #rateChart {
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px;
     }
   }
     
