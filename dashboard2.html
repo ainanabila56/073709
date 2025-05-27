@@ -206,10 +206,26 @@
                   }
                 }
               },
-                scales: {
-                  x: { ticks: { color: 'black' } },
-                  y: { ticks: { color: 'black' } }
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: 'Date',      // X-axis label
+                    color: 'black',
+                    font: { size: 14, weight: 'bold' }
+                  },
+                  ticks: { color: 'black' }
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: `Rate (${from} to ${to})`, // Y-axis label
+                    color: 'black',
+                    font: { size: 14, weight: 'bold' }
+                  },
+                  ticks: { color: 'black' }
                 }
+              }
             }
           });
         }
